@@ -1,0 +1,149 @@
+{
+  "name": "everos-memory",
+  "version": "0.1.0",
+  "description": "Automatic long-term memory for Claude Code, backed by a self-hosted EverOS server (recall on prompt submit, deferred capture on turn stop, batched extraction on flush).",
+  "author": {
+    "name": "EverMind AI (EverOS)"
+  },
+  "keywords": ["memory", "context", "recall", "everos"],
+  "userConfig": {
+    "baseUrl": {
+      "type": "string",
+      "title": "EverOS base URL",
+      "description": "EverOS server base URL",
+      "default": "http://127.0.0.1:8124"
+    },
+    "apiVersion": {
+      "type": "string",
+      "title": "API version",
+      "description": "EverOS API version to use: auto, v1, or v2",
+      "default": "auto"
+    },
+    "appId": {
+      "type": "string",
+      "title": "App ID",
+      "description": "EverOS application partition id",
+      "default": "claude-code"
+    },
+    "projectId": {
+      "type": "string",
+      "title": "Project ID override",
+      "description": "Fixed EverOS project partition id (defaults to a hash of the working directory if left empty)",
+      "default": ""
+    },
+    "userId": {
+      "type": "string",
+      "title": "User ID override",
+      "description": "Developer identity for the EverOS user track (defaults to the OS account name if left empty)",
+      "default": ""
+    },
+    "agentId": {
+      "type": "string",
+      "title": "Agent ID",
+      "description": "Agent identity for the EverOS agent track",
+      "default": "claude-code"
+    },
+    "recallMethod": {
+      "type": "string",
+      "title": "Recall method",
+      "description": "EverOS retrieval method: keyword, vector, hybrid, or agentic",
+      "default": "hybrid"
+    },
+    "enableLlmRerank": {
+      "type": "boolean",
+      "title": "Enable LLM rerank",
+      "description": "Route hybrid search through the LLM rerank lane instead of requiring a cross-encoder rerank provider",
+      "default": true
+    },
+    "queryN": {
+      "type": "number",
+      "title": "Recall query history depth",
+      "description": "Number of recent direct user messages blended into each recall query",
+      "default": 3
+    },
+    "queryMaxChars": {
+      "type": "number",
+      "title": "Recall query character budget",
+      "description": "Character budget for the recall query",
+      "default": 2000
+    },
+    "recallTopK": {
+      "type": "number",
+      "title": "Recall top-K",
+      "description": "Maximum results requested per EverOS owner track",
+      "default": 5
+    },
+    "recallMaxChars": {
+      "type": "number",
+      "title": "Recall injection character budget",
+      "description": "Total character budget for injected recalled memory",
+      "default": 200000
+    },
+    "recallTimeoutMs": {
+      "type": "number",
+      "title": "Recall timeout (ms)",
+      "description": "Per-attempt timeout for the primary recall method (hybrid+rerank makes a real LLM call; budget accordingly)",
+      "default": 20000
+    },
+    "recallRetries": {
+      "type": "number",
+      "title": "Recall retry attempts",
+      "description": "How many times to try the primary recall method before falling back",
+      "default": 2
+    },
+    "recallFallbackMethod": {
+      "type": "string",
+      "title": "Recall fallback method",
+      "description": "Method used if the primary recall method fails/times out on every retry (keyword never depends on rerank)",
+      "default": "keyword"
+    },
+    "recallFallbackTimeoutMs": {
+      "type": "number",
+      "title": "Recall fallback timeout (ms)",
+      "description": "Timeout for the fallback recall call",
+      "default": 5000
+    },
+    "captureTimeoutMs": {
+      "type": "number",
+      "title": "Capture/flush timeout (ms)",
+      "description": "Per-add/flush timeout in milliseconds",
+      "default": 15000
+    },
+    "captureMaxChars": {
+      "type": "number",
+      "title": "Capture per-message character budget",
+      "description": "Per-message text budget before capture",
+      "default": 50000
+    },
+    "flushIdleMs": {
+      "type": "number",
+      "title": "Idle flush delay (ms)",
+      "description": "Flush after this much inactivity following a captured turn",
+      "default": 30000
+    },
+    "flushTokenThreshold": {
+      "type": "number",
+      "title": "Flush token threshold",
+      "description": "Flush when the approximate buffered token count reaches this threshold",
+      "default": 12000
+    },
+    "flushMessageThreshold": {
+      "type": "number",
+      "title": "Flush message threshold",
+      "description": "Flush when the buffered message count reaches this threshold",
+      "default": 50
+    },
+    "flushMaxDelayMs": {
+      "type": "number",
+      "title": "Max flush delay (ms)",
+      "description": "Maximum time a non-empty buffer may remain unflushed",
+      "default": 300000
+    },
+    "flushOnSessionSwitch": {
+      "type": "boolean",
+      "title": "Flush on session switch",
+      "description": "Flush other pending sessions in the same project before a new session recalls",
+      "default": true
+    }
+  }
+}

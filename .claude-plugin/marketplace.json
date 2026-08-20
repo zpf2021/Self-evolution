@@ -1,0 +1,13 @@
+{
+  "name": "everos-cc-plugin-marketplace",
+  "owner": {
+    "name": "EverMind AI (EverOS) / Muse_cc"
+  },
+  "plugins": [
+    {
+      "name": "everos-memory",
+      "source": "./",
+      "description": "Automatic long-term memory for Claude Code, backed by a self-hosted EverOS server."
+    }
+  ]
+}
