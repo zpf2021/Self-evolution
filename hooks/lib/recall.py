@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import json
 import re
-from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
@@ -100,31 +99,6 @@ def _episode_text(episode: dict[str, Any]) -> str:
     return neutralize_memory_fences(" — ".join(p for p in parts if p))
 
 
-def _episode_section(episodes: list[dict[str, Any]]) -> list[str]:
-    """Render related answers and feedback as one chronological session history."""
-    if not episodes:
-        return []
-
-    grouped: OrderedDict[str, list[dict[str, Any]]] = OrderedDict()
-    for index, episode in enumerate(episodes):
-        session_id = episode.get("session_id")
-        key = str(session_id) if session_id else f"unknown-{index}"
-        grouped.setdefault(key, []).append(episode)
-
-    lines = ["Relevant past episodes (grouped by historical session):"]
-    for key, session_episodes in grouped.items():
-        session_episodes.sort(key=lambda item: str(item.get("timestamp", "")))
-        label = key if not key.startswith("unknown-") else "unknown"
-        lines.append(f"- Historical session {label}:")
-        for position, episode in enumerate(session_episodes, start=1):
-            rendered = _episode_text(episode)
-            if not rendered:
-                continue
-            timestamp = episode.get("timestamp") or "unknown time"
-            lines.append(f"  {position}. [{timestamp}] {rendered}")
-    return lines
-
-
 def _case_text(case: dict[str, Any]) -> str:
     parts = [f"Intent: {case.get('task_intent', '')}", f"Approach: {case.get('approach', '')}"]
     if case.get("key_insight"):
@@ -159,7 +133,7 @@ def render_memory(
     lines = [
         *_section("Relevant agent skills", agent.get("agent_skills", []) or [], _skill_text),
         *_section("Relevant agent cases", agent.get("agent_cases", []) or [], _case_text),
-        *_episode_section(user.get("episodes", []) or []),
+        *_section("Relevant past episodes", user.get("episodes", []) or [], _episode_text),
     ]
     if not lines:
         return None
@@ -188,9 +162,8 @@ def render_memory(
         "- Apply associated feedback only to the parts it clearly evaluates.\n"
         "- A partly unsuccessful case may still contain useful methods.\n\n"
         "[Episodes: Historical Responses and Feedback]\n"
-        "- Read related entries chronologically.\n"
-        "- Use session id, task content, and timestamps to associate responses with their "
-        "feedback. One session may contain multiple tasks.\n"
+        "- Use the task content described in each recalled episode to associate a historical "
+        "response with feedback that clearly evaluates it.\n"
         "- Distinguish the original response, user evaluation, subsequent revision, and "
         "any later confirmation.\n"
         "- A subsequent revision is not automatically a confirmed correction.\n"
