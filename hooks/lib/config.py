@@ -30,11 +30,12 @@ DEFAULTS = {
     # (5 skills + 5 cases + 5 episodes + profile) against the old 12000-char DSH-inherited
     # default — the overflow silently ate whichever section rendered last. Section order is
     # now priority-sorted (skills/cases first, see render_memory) so overflow now trims the
-    # least-critical content instead of the most-actionable. Set to 200k chars per explicit
-    # user request, sized against a 400K-token model context window — trade-off is real:
-    # this many extra tokens get sent on every UserPromptSubmit call that finds a match, at
-    # real per-call cost.
-    "recall_max_chars": 200_000,
+    # least-critical content instead of the most-actionable. Round-4 GAIA memory measured
+    # well above the original 12k default, especially once answer + feedback episodes are
+    # both present. Keep a 100k hard ceiling while excluding user.md from this task-oriented
+    # hook; this leaves room for recalled skills, cases, and evaluated episodes without the
+    # unbounded 200k injection used during initial diagnosis.
+    "recall_max_chars": 100_000,
     # hybrid+enable_llm_rerank makes a real LLM call for reranking (not just vector/BM25
     # fusion, which alone resolves in well under a second) — measured real-world latency
     # against this deployment's proxy: single calls have taken anywhere from ~8s to over
