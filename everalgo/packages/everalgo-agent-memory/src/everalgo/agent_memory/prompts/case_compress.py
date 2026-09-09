@@ -59,6 +59,14 @@ Pre-processed trajectory:
   - **0.0**: No meaningful progress toward the task goal.
 
   **Critical scoring rules:**
+  - `quality_score` measures task completion and deliverable quality, not external verification confidence.
+  - Missing user/evaluator feedback does NOT mean the task failed, and does NOT mean it succeeded. Judge the final deliverable against the task evidence.
+  - Prefer concrete evidence when available: user feedback, evaluator results, tests, calculations, compiler/runtime output, authoritative sources, or consistency across independent sources.
+  - For exact-answer tasks, the final user-visible answer is the authoritative deliverable. Candidate answers that appeared only in intermediate reasoning are not the submitted answer.
+  - If the final answer is missing, truncated, has omitted list items, has the wrong required format, or conflicts with completed reasoning/tool evidence, `quality_score` MUST be below `0.5`.
+  - When there is no external feedback but the final deliverable is complete, internally consistent, and supported by tools or sources, it may receive a high completion score.
+  - End `approach` with exactly one verification line: `Verification: user-confirmed`, `Verification: tool-confirmed`, `Verification: self-assessed`, or `Verification: unverified`.
+  - `Verification: unverified` does not automatically lower completion quality, but never describe it as confirmed correct by the user.
   - Score based on the FINAL state of the deliverable, not the journey. A task that explored 10 approaches but produced no output = low score.
   - "Timed out before completing" with no deliverable = 0.1-0.2 (not 0.5+).
   - External blockers (e.g., resource unavailable, OOM kill, network restriction) that prevent completion = score the actual output achieved, not what would have been achieved.

@@ -6,6 +6,8 @@ You will receive:
 1. **New case(s)** from a cluster of semantically similar tasks — all with quality_score >= 0.5.
 2. **Existing skills** previously extracted for this cluster (each with an index number; may be empty).
 
+Compatibility note: `quality_score >= 0.5` means the case reached the success-path completion threshold; it does not automatically mean the answer was externally verified correct. Unverified cases may contribute reusable methods, checks, and cautionary rules, but do not describe case-specific factual answers as verified facts unless user feedback or tool evidence confirms them. Prefer methods and verification procedures over memorizing single answers. A single unverified case may still form a low-confidence or tentative skill when the method is useful. Cases with explicit errors, truncation, format failures, or negative feedback should contribute Pitfalls or remain in the failure/hypothesis path.
+
 Your job: distill **actionable strategies** into reusable **Skills** via incremental operations. Maintain as few skills as the evidence warrants.
 
 **What makes a GOOD skill:**

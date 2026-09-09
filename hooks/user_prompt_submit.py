@@ -34,6 +34,16 @@ import state  # noqa: E402
 # a single language, so the short-prompt skip has to be script-agnostic.
 MIN_CHARS = 8
 
+# Claude Code delivers background-agent completion notices through the same hook
+# event as genuine user prompts. Recalling memory for those notices can trigger a
+# redundant answer after the original task has already been completed.
+_SYNTHETIC_PROMPT_PREFIXES = ("<task-notification>",)
+
+
+def _is_synthetic_prompt(prompt: str) -> bool:
+    normalized = prompt.lstrip().lower()
+    return any(normalized.startswith(prefix) for prefix in _SYNTHETIC_PROMPT_PREFIXES)
+
 
 class _Logger:
     def warn(self, message: str) -> None:
@@ -69,6 +79,9 @@ def main() -> None:
     cwd = data.get("cwd", "") or ""
     raw_session_id = data.get("session_id", "") or ""
     transcript_path = data.get("transcript_path", "") or ""
+
+    if _is_synthetic_prompt(prompt):
+        sys.exit(0)
 
     config = resolve_config()
     logger = _Logger()

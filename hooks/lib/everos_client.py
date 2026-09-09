@@ -154,6 +154,21 @@ class EverosClient:
         _assert_scope_id(request.get("project_id"), "project_id")
         return self._memory_call("search", request, timeout_s)
 
+    def get(
+        self, request: dict[str, Any], timeout_s: float | None = None
+    ) -> dict[str, Any]:
+        has_user = request.get("user_id") is not None
+        has_agent = request.get("agent_id") is not None
+        if has_user == has_agent:
+            raise EverosError(
+                0,
+                "INVALID_OWNER",
+                "exactly one of user_id / agent_id must be provided",
+            )
+        _assert_scope_id(request.get("app_id"), "app_id")
+        _assert_scope_id(request.get("project_id"), "project_id")
+        return self._memory_call("get", request, timeout_s)
+
     def flush(self, request: dict[str, Any], timeout_s: float | None = None) -> dict[str, Any]:
         _assert_scope_id(request.get("app_id"), "app_id")
         _assert_scope_id(request.get("project_id"), "project_id")

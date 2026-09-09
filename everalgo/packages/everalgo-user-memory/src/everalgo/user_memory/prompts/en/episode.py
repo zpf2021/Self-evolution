@@ -38,6 +38,10 @@ Follow these principles when generating episodic memories:
 3. Use declarative language to describe episodes, not dialogue format
 4. Highlight key information and emotional changes
 5. Ensure episode content is easy to retrieve later
+6. For task-oriented conversations, record the agent's actual final answer submitted to the user. Preserve numbers, identifiers, units, separators, list items, capitalization, and formatting-critical tokens exactly.
+7. Distinguish candidate answers from intermediate reasoning and the final user-visible answer. If reasoning contains the correct answer but the final output is truncated, missing items, or different, record both and state which answer was finally submitted.
+8. Record what the user, evaluator, or tool feedback actually evaluated: final answer, format, method, intermediate result, or partial result.
+9. If there is no user/evaluator/tool feedback, mark the outcome as unverified in content. Do not infer failure from missing feedback, and do not infer verified success from the agent's own claim.
 """
 
 EPISODE_GENERATION_PROMPT = """
