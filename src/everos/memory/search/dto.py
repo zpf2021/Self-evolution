@@ -81,12 +81,14 @@ class SearchRequest(BaseModel):
     top_k: int = -1
     radius: float | None = Field(default=None, ge=0.0, le=1.0)
     min_score: float | None = Field(default=None, ge=0.0, le=1.0)
-    """Post-fusion relevance floor for the episode HYBRID path.
+    """Post-fusion relevance floor for calibrated HYBRID/AGENTIC paths.
 
-    Applied after heap-expand against the LR-calibrated score in ``[0, 1]``:
-    items scoring below this value are dropped. Independent of ``radius``
-    (which gates raw cosine at recall time); ``None`` disables the floor.
-    Only the episode hybrid path consumes it — other methods ignore it.
+    Applied against calibrated scores in ``[0, 1]``: items scoring below
+    this value are dropped, then at most ``top_k`` surviving items are
+    returned. Independent of ``radius`` (which gates raw cosine at recall
+    time); ``None`` disables the floor. Current consumers: user episode
+    HYBRID and agent case HYBRID. Keyword fallback callers should omit it
+    because BM25 scores are not calibrated.
     """
     include_profile: bool = False
     enable_llm_rerank: bool = Field(

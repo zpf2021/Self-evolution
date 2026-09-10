@@ -26,6 +26,8 @@ DEFAULTS = {
     "query_n": 3,
     "query_max_chars": 2_000,
     "recall_top_k": 5,
+    "recall_episode_min_score": 0.85,
+    "recall_case_min_score": 0.60,
     # Real recall against this deployment measured 15106 chars of combined content
     # (5 skills + 5 cases + 5 episodes + profile) against the old 12000-char DSH-inherited
     # default — the overflow silently ate whichever section rendered last. Section order is
@@ -81,6 +83,17 @@ def _read_int(camel_key: str, fallback: int) -> int:
     return parsed if parsed > 0 else fallback
 
 
+def _read_float(camel_key: str, fallback: float | None) -> float | None:
+    value = os.environ.get(_env_name(camel_key))
+    if not value or not value.strip():
+        return fallback
+    try:
+        parsed = float(value)
+    except ValueError:
+        return fallback
+    return parsed if 0.0 <= parsed <= 1.0 else fallback
+
+
 def _read_bool(camel_key: str, fallback: bool) -> bool:
     value = os.environ.get(_env_name(camel_key))
     if value is None or not value.strip():
@@ -108,6 +121,8 @@ class ResolvedConfig:
     query_n: int
     query_max_chars: int
     recall_top_k: int
+    recall_episode_min_score: float | None
+    recall_case_min_score: float | None
     recall_max_chars: int
     recall_timeout_ms: int
     recall_retries: int
@@ -137,6 +152,12 @@ def resolve_config() -> ResolvedConfig:
         query_n=_read_int("queryN", DEFAULTS["query_n"]),
         query_max_chars=_read_int("queryMaxChars", DEFAULTS["query_max_chars"]),
         recall_top_k=_read_int("recallTopK", DEFAULTS["recall_top_k"]),
+        recall_episode_min_score=_read_float(
+            "recallEpisodeMinScore", DEFAULTS["recall_episode_min_score"]
+        ),
+        recall_case_min_score=_read_float(
+            "recallCaseMinScore", DEFAULTS["recall_case_min_score"]
+        ),
         recall_max_chars=_read_int("recallMaxChars", DEFAULTS["recall_max_chars"]),
         recall_timeout_ms=_read_int("recallTimeoutMs", DEFAULTS["recall_timeout_ms"]),
         recall_retries=_read_int("recallRetries", DEFAULTS["recall_retries"]),

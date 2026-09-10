@@ -253,7 +253,12 @@ def _search_with_fallback(
         except EverosError as exc:
             logger.warn(f"everos-memory: {label} recall attempt {attempt + 1}/{retries} failed: {exc}")
 
-    fallback_request = {**request, "method": fallback_method, "enable_llm_rerank": False}
+    fallback_request = {
+        **request,
+        "method": fallback_method,
+        "enable_llm_rerank": False,
+    }
+    fallback_request.pop("min_score", None)
     try:
         return client.search(fallback_request, fallback_timeout_s)
     except EverosError as exc:
@@ -425,6 +430,8 @@ def recall_message(
     method: str,
     top_k: int,
     enable_llm_rerank: bool,
+    episode_min_score: float | None,
+    case_min_score: float | None,
     timeout_s: float,
     max_chars: int,
     logger,
@@ -452,6 +459,8 @@ def recall_message(
             "include_profile": False,
             "enable_llm_rerank": enable_llm_rerank,
         }
+        if episode_min_score is not None:
+            request["min_score"] = episode_min_score
         return _search_with_fallback(
             client, request,
             primary_timeout_s=timeout_s, retries=retries,
@@ -465,6 +474,8 @@ def recall_message(
             "agent_id": agent_id,
             "enable_llm_rerank": enable_llm_rerank,
         }
+        if case_min_score is not None:
+            request["min_score"] = case_min_score
         return _search_with_fallback(
             client, request,
             primary_timeout_s=timeout_s, retries=retries,

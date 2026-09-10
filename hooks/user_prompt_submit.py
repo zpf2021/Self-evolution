@@ -109,6 +109,8 @@ def main() -> None:
             method=config.recall_method,
             top_k=config.recall_top_k,
             enable_llm_rerank=config.enable_llm_rerank,
+            episode_min_score=config.recall_episode_min_score,
+            case_min_score=config.recall_case_min_score,
             timeout_s=config.recall_timeout_ms / 1000,
             max_chars=config.recall_max_chars,
             logger=logger,

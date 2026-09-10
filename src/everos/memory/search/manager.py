@@ -30,7 +30,7 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 from everalgo.rank import DEFAULT_RANK_CONFIG, RankConfig, arank
 from everalgo.rank.fusion import rrf
@@ -96,6 +96,8 @@ if TYPE_CHECKING:
     )
 
 logger = get_logger(__name__)
+
+_T = TypeVar("_T")
 
 # Recall pool sizing — matches the legacy enterprise constants
 # ``DEFAULT_RECALL_MULTIPLIER`` / ``DEFAULT_TOPK_LIMIT``.
@@ -400,9 +402,7 @@ class SearchManager:
                 )
                 episode_pool = {c.id: c for c in (*sparse, *dense)}
                 shaped = reshape_hybrid_output(scored, episode_pool=episode_pool)
-                if req.min_score is not None:
-                    shaped = [s for s in shaped if s.score >= req.min_score]
-                return shaped
+                return _apply_min_score_and_top_k(shaped, req.min_score, top_k)
 
         # rrf / lr: standard everalgo fusion path (fallback).
         with memory_span(
@@ -485,7 +485,8 @@ class SearchManager:
             )
         case_candidates = (_scored_as_candidate(s) for s in output.items)
         shaped = (shape_agent_case_from_candidate(c) for c in case_candidates)
-        return [item for item in shaped if item is not None]
+        cases = [item for item in shaped if item is not None]
+        return _apply_min_score_and_top_k(cases, req.min_score, top_k)
 
     # ── Agent skills ────────────────────────────────────────────────
 
@@ -888,6 +889,16 @@ def _scored_as_candidate(scored) -> Candidate:  # type: ignore[no-untyped-def]
         source="other",
         metadata=dict(scored.metadata),
     )
+
+
+def _apply_min_score_and_top_k(
+    items: list[_T],
+    min_score: float | None,
+    top_k: int,
+) -> list[_T]:
+    if min_score is not None:
+        items = [item for item in items if getattr(item, "score") >= min_score]
+    return items[:top_k]
 
 
 def _feature_name(method: SearchMethod, owner_type: str) -> str:

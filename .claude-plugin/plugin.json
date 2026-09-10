@@ -73,6 +73,18 @@
       "description": "Maximum results requested per EverOS owner track",
       "default": 5
     },
+    "recallEpisodeMinScore": {
+      "type": "number",
+      "title": "Episode recall minimum score",
+      "description": "Minimum calibrated score for injected episode recall results; surviving results are capped by Recall top-K",
+      "default": 0.85
+    },
+    "recallCaseMinScore": {
+      "type": "number",
+      "title": "Case recall minimum score",
+      "description": "Minimum calibrated score for injected agent case recall results; surviving results are capped by Recall top-K",
+      "default": 0.6
+    },
     "recallMaxChars": {
       "type": "number",
       "title": "Recall injection character budget",
