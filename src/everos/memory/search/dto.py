@@ -194,9 +194,11 @@ class SearchAgentCaseItem(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: str
+    entry_id: str | None = None
     agent_id: str
     app_id: str = "default"
     project_id: str = "default"
+    md_path: str | None = None
     session_id: str
     task_intent: str
     approach: str
@@ -215,6 +217,7 @@ class SearchAgentSkillItem(BaseModel):
     agent_id: str
     app_id: str = "default"
     project_id: str = "default"
+    md_path: str | None = None
     name: str
     description: str
     content: str

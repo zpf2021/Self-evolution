@@ -141,9 +141,11 @@ def shape_agent_case_from_candidate(candidate: Candidate) -> SearchAgentCaseItem
         return None
     return SearchAgentCaseItem(
         id=candidate.id,
+        entry_id=_as_optional_str(md.get("entry_id")),
         agent_id=owner_id,
         app_id=_as_str(md.get("app_id")) or "default",
         project_id=_as_str(md.get("project_id")) or "default",
+        md_path=_as_optional_str(md.get("md_path")),
         session_id=session_id,
         task_intent=task_intent,
         approach=approach,
@@ -189,6 +191,7 @@ def shape_agent_skill_from_candidate(
         agent_id=owner_id,
         app_id=_as_str(md.get("app_id")) or "default",
         project_id=_as_str(md.get("project_id")) or "default",
+        md_path=_as_optional_str(md.get("md_path")),
         name=name,
         description=description,
         content=content,

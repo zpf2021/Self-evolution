@@ -23,6 +23,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
 
 from config import resolve_config  # noqa: E402
+from episode_synthesis import EpisodeSynthesisConfig, OpenAIChatClient  # noqa: E402
 from everos_client import EverosClient, EverosError  # noqa: E402
 from identity import agent_id_of, project_id_of, resolve_user_id, session_id_of  # noqa: E402
 from recall import build_recall_query, recall_message  # noqa: E402
@@ -88,6 +89,18 @@ def main() -> None:
     project_id = project_id_of(cwd, config.project_id)
     session_id = session_id_of(raw_session_id)
     client = EverosClient(base_url=config.base_url, api_version=config.api_version)
+    synthesis_config = EpisodeSynthesisConfig(
+        base_url=config.episode_synthesis_base_url,
+        api_key=config.episode_synthesis_api_key,
+        model=config.episode_synthesis_model,
+        timeout_s=config.episode_synthesis_timeout_ms / 1000,
+        max_tokens=config.episode_synthesis_max_tokens,
+    )
+    synthesis_client = (
+        OpenAIChatClient(synthesis_config)
+        if config.episode_synthesis_enabled and synthesis_config.configured
+        else None
+    )
 
     try:
         _flush_before_recall(client, config, project_id, session_id, logger)
@@ -117,6 +130,8 @@ def main() -> None:
             retries=config.recall_retries,
             fallback_method=config.recall_fallback_method,
             fallback_timeout_s=config.recall_fallback_timeout_ms / 1000,
+            episode_top_k=config.recall_episode_top_k,
+            episode_synthesis_client=synthesis_client,
         )
     except Exception as exc:  # noqa: BLE001
         logger.warn(f"everos-memory: recall failed open: {exc}")

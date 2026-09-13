@@ -71,7 +71,13 @@
       "type": "number",
       "title": "Recall top-K",
       "description": "Maximum results requested per EverOS owner track",
-      "default": 5
+      "default": 2
+    },
+    "recallEpisodeTopK": {
+      "type": "number",
+      "title": "Episode recall top-K",
+      "description": "Maximum main episode hits; each hit may load its immediate previous and next episode",
+      "default": 2
     },
     "recallEpisodeMinScore": {
       "type": "number",
@@ -87,9 +93,9 @@
     },
     "recallMaxChars": {
       "type": "number",
-      "title": "Recall injection character budget",
-      "description": "Total character budget for injected recalled memory",
-      "default": 200000
+      "title": "Recall injection byte budget",
+      "description": "Maximum UTF-8 bytes injected by recalled memory; complete items that do not fit are skipped",
+      "default": 9500
     },
     "recallTimeoutMs": {
       "type": "number",
@@ -114,6 +120,42 @@
       "title": "Recall fallback timeout (ms)",
       "description": "Timeout for the fallback recall call",
       "default": 5000
+    },
+    "episodeSynthesisEnabled": {
+      "type": "boolean",
+      "title": "Enable episode/case synthesis",
+      "description": "Evaluate recalled episode chains and compact recalled agent cases before injection",
+      "default": true
+    },
+    "episodeSynthesisBaseUrl": {
+      "type": "string",
+      "title": "Memory synthesis API base URL",
+      "description": "OpenAI-compatible API base URL; falls back to EVEROS_LLM__BASE_URL",
+      "default": ""
+    },
+    "episodeSynthesisApiKey": {
+      "type": "string",
+      "title": "Memory synthesis API key",
+      "description": "OpenAI-compatible API key; falls back to EVEROS_LLM__API_KEY",
+      "default": ""
+    },
+    "episodeSynthesisModel": {
+      "type": "string",
+      "title": "Memory synthesis model",
+      "description": "Model used for episode evaluation, same-task comparison, and case compression; falls back to EVEROS_LLM__MODEL",
+      "default": ""
+    },
+    "episodeSynthesisTimeoutMs": {
+      "type": "number",
+      "title": "Episode synthesis timeout (ms)",
+      "description": "Per-call timeout; the three calls share wall-clock time because they run concurrently",
+      "default": 30000
+    },
+    "episodeSynthesisMaxTokens": {
+      "type": "number",
+      "title": "Episode synthesis output token limit",
+      "description": "Maximum output tokens for each episode synthesis call",
+      "default": 2000
     },
     "captureTimeoutMs": {
       "type": "number",
