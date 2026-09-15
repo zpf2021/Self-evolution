@@ -125,7 +125,12 @@ def _skill_brief_text(skill: dict[str, Any]) -> str:
     brief = f"{skill.get('name', '')}: {skill.get('description', '')}".strip(": ")
     md_path = str(skill.get("md_path") or "").strip()
     if md_path:
-        brief = f"Source: {md_path}\n{brief}"
+        brief = (
+            f"Source: @{md_path}\n"
+            "If the inline summary is insufficient or conflicts with current evidence, "
+            "read the source skill file above before relying on it.\n"
+            f"{brief}"
+        )
     return neutralize_memory_fences(brief)
 
 

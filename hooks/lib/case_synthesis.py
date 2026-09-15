@@ -33,7 +33,8 @@ def _source(case: dict[str, Any]) -> str | None:
     if not md_path:
         return None
     entry_id = str(case.get("entry_id") or "").strip()
-    return f"{md_path}#entry:{entry_id}" if entry_id else md_path
+    source = f"@{md_path}"
+    return f"{source}\nEntry: {entry_id}" if entry_id else source
 
 
 def _validate(result: dict[str, Any]) -> dict[str, Any]:
@@ -65,6 +66,10 @@ def _render(case: dict[str, Any], compact: dict[str, Any]) -> str:
     source = _source(case)
     if source:
         parts.append(f"Source: {source}")
+        parts.append(
+            "If the inline summary is insufficient or conflicts with current evidence, "
+            "read the source case file above and inspect the listed entry before relying on it."
+        )
     parts.extend(
         (
             f"Intent: {case.get('task_intent', '')}",
@@ -83,6 +88,10 @@ def _fallback(case: dict[str, Any]) -> str:
     source = _source(case)
     if source:
         parts.append(f"Source: {source}")
+        parts.append(
+            "If the inline summary is insufficient or conflicts with current evidence, "
+            "read the source case file above and inspect the listed entry before relying on it."
+        )
     parts.extend(
         (
             f"Intent: {case.get('task_intent', '')}",
