@@ -47,7 +47,11 @@ def get_embedding_capability() -> EmbeddingCapability:
     if _capability is not None:
         return _capability
     try:
-        provider = build_embedding_provider(load_settings().embedding)
+        from everos.core.persistence import MemoryRoot
+        from unified_memory.fingerprint import ensure_index_identity
+        settings = load_settings().embedding
+        ensure_index_identity(MemoryRoot.resolve().root, settings)
+        provider = build_embedding_provider(settings)
     except ValueError as exc:
         logger.warning(
             "embedding_capability_build_failed",

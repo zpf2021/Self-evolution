@@ -1,0 +1,7 @@
+{
+  "name": "unified-memory-local-embedding",
+  "private": true,
+  "type": "module",
+  "scripts": {"start": "node server.mjs"},
+  "dependencies": {"node-llama-cpp": "3.14.5"}
+}

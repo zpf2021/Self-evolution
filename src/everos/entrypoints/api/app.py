@@ -47,6 +47,9 @@ from .routes import (
     search,
 )
 
+from .routes import unified
+from .lifespans.unified import UnifiedLifespanProvider
+
 logger = get_logger(__name__)
 
 
@@ -91,6 +94,7 @@ def create_app(
             LanceDBLifespanProvider(),
             CascadeLifespanProvider(),
             OmeLifespanProvider(),
+            UnifiedLifespanProvider(),
         ]
 
     from everos import __version__
@@ -139,6 +143,7 @@ def create_app(
     app.include_router(get.router, prefix="/api/v1")
     app.include_router(ome.router, prefix="/api/v1")
     app.include_router(knowledge.router, prefix="/api/v1")
+    app.include_router(unified.router, prefix="/api/v2")
     # v2 — cloud-aligned name, same routers.
     app.include_router(memorize.router, prefix="/api/v2")
     app.include_router(search.router, prefix="/api/v2")

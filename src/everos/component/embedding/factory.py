@@ -15,7 +15,7 @@ _DEFAULT_DIM = 1024
 def build_embedding_provider(
     settings: EmbeddingSettings,
     *,
-    dim: int = _DEFAULT_DIM,
+    dim: int | None = None,
 ) -> EmbeddingProvider:
     """Build an OpenAI-compatible embedding provider from settings.
 
@@ -42,7 +42,8 @@ def build_embedding_provider(
         model=settings.model,
         api_key=settings.api_key.get_secret_value(),
         base_url=settings.base_url,
-        dim=dim,
+        dim=dim if dim is not None else settings.index_dimension,
+        text_format=settings.text_format,
         dimensions=settings.dimensions,
         timeout=settings.timeout_seconds,
         max_retries=settings.max_retries,

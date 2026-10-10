@@ -16,7 +16,9 @@ from ._parent_type import ParentType
 
 # Vector dimension is settings-managed at runtime; the class-level
 # constant pins the schema dim used at table creation.
-_DIM = 1024
+from everos.config import load_settings
+
+_DIM = load_settings().embedding.index_dimension
 
 
 class Episode(BaseLanceTable):

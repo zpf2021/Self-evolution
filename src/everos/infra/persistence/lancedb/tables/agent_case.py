@@ -15,7 +15,9 @@ from everos.core.persistence.lancedb import BaseLanceTable, Vector
 
 from ._parent_type import ParentType
 
-_DIM = 1024
+from everos.config import load_settings
+
+_DIM = load_settings().embedding.index_dimension
 
 
 class AgentCase(BaseLanceTable):

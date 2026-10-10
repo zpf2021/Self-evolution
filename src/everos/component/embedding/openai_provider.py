@@ -5,8 +5,7 @@ Wraps :class:`openai.AsyncOpenAI` so any OpenAI-protocol endpoint
 forks. When ``dimensions`` is set, the parameter is forwarded to the
 API so MRL-capable models (OpenAI text-embedding-3-*, Qwen3-Embedding,
 …) can do server-side truncation with proper re-normalization.
-Client-side truncation to ``dim`` is always applied as a fallback for
-backends that ignore or don't support the parameter.
+Responses must match the configured index width; invalid vectors are rejected.
 
 Concurrency model:
 
@@ -20,6 +19,7 @@ Concurrency model:
 from __future__ import annotations
 
 import asyncio
+import math
 from collections.abc import Sequence
 
 import openai
@@ -37,8 +37,7 @@ class OpenAIEmbeddingProvider:
         api_key: Bearer credential as a plain ``str``.
         base_url: OpenAI-protocol endpoint
             (e.g. ``"https://api.deepinfra.com/v1/openai"``).
-        dim: Target vector dimension. Vectors longer than this are
-            truncated client-side (matches the LanceDB column shape).
+        dim: Exact target vector dimension; mismatches are rejected.
         dimensions: Optional API-level ``dimensions`` parameter for
             MRL-capable models.  When set, forwarded to the embedding
             API for server-side truncation with re-normalization.
@@ -56,6 +55,7 @@ class OpenAIEmbeddingProvider:
         api_key: str,
         base_url: str,
         dim: int = 1024,
+        text_format: str = "plain",
         dimensions: int | None = None,
         timeout: float = 30.0,
         max_retries: int = 3,
@@ -63,6 +63,7 @@ class OpenAIEmbeddingProvider:
         max_concurrent: int = 5,
     ) -> None:
         self.dim = dim
+        self._text_format = text_format
         self._dimensions = dimensions
         self._model = model
         self._batch_size = batch_size
@@ -76,15 +77,23 @@ class OpenAIEmbeddingProvider:
 
     async def embed(self, text: str) -> list[float]:
         """Embed a single string."""
-        vectors = await self._embed_chunk([text])
+        vectors = await self._embed_chunk([self._format(text, "document")])
         return vectors[0]
+
+    def _format(self, text: str, role: str) -> str:
+        if self._text_format != "embeddinggemma":
+            return text
+        return f"task: search result | query: {text}" if role == "query" else f"title: none | text: {text}"
+
+    async def embed_query(self, text: str) -> list[float]:
+        return (await self._embed_chunk([self._format(text, "query")]))[0]
 
     async def embed_batch(self, texts: Sequence[str]) -> list[list[float]]:
         """Embed many strings, preserving input order."""
         if not texts:
             return []
         chunks = [
-            list(texts[i : i + self._batch_size])
+            [self._format(t, "document") for t in texts[i : i + self._batch_size]]
             for i in range(0, len(texts), self._batch_size)
         ]
         results = await asyncio.gather(*(self._embed_chunk(chunk) for chunk in chunks))
@@ -106,6 +115,7 @@ class OpenAIEmbeddingProvider:
                     response = await self._client.embeddings.create(
                         model=self._model,
                         input=chunk,
+                        encoding_format="float",
                         dimensions=self._dimensions
                         if self._dimensions is not None
                         else openai.NOT_GIVEN,
@@ -122,5 +132,13 @@ class OpenAIEmbeddingProvider:
                 model=self._model,
                 input_tokens=usage.prompt_tokens if usage else None,
             )
-            # Client-side truncation — always applied as fallback.
-            return [list(item.embedding[: self.dim]) for item in response.data]
+            rows = sorted(response.data, key=lambda item: item.index)
+            if [item.index for item in rows] != list(range(len(chunk))):
+                raise EmbeddingServiceError("Embedding response count/index mismatch")
+            vectors = [list(item.embedding) for item in rows]
+            for vector in vectors:
+                if len(vector) != self.dim or not all(math.isfinite(x) for x in vector):
+                    raise EmbeddingServiceError(f"Expected {self.dim} finite dimensions, got {len(vector)}")
+                if not any(vector):
+                    raise EmbeddingServiceError("Embedding response is a zero vector")
+            return vectors

@@ -91,6 +91,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+unified = ["mcp>=1.25.0,<2"]
 multimodal = ["everalgo-parser[svg]>=0.2.1"]  # [svg] bundles cairosvg → SVG works by default
 # Native OpenTelemetry tracing export. Optional — EverOS never imports these
 # unless [observability] is enabled. Install with: pip install everos[otel]
@@ -110,7 +111,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/everos"]
+packages = ["src/everos", "src/unified_memory"]
 
 # ``env.template`` lives at src/everos/templates/env.template and is
 # auto-included via ``packages``. ``everos init`` reads it through

@@ -1,10 +1,50 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/unified.py\" SessionStart",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "matcher": "*",
         "hooks": [
-          {"type": "command", "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/user_prompt_submit.py", "timeout": 90}
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/unified.py\" UserPromptSubmit",
+            "timeout": 90
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/unified.py\" PostToolUse",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/unified.py\" PreCompact",
+            "timeout": 30
+          }
         ]
       }
     ],
@@ -12,7 +52,11 @@
       {
         "matcher": "*",
         "hooks": [
-          {"type": "command", "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/stop.py", "timeout": 20}
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/unified.py\" Stop",
+            "timeout": 30
+          }
         ]
       }
     ],
@@ -20,7 +64,11 @@
       {
         "matcher": "*",
         "hooks": [
-          {"type": "command", "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/session_end.py", "timeout": 20}
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/unified.py\" SessionEnd",
+            "timeout": 30
+          }
         ]
       }
     ]

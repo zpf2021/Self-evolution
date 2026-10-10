@@ -98,6 +98,14 @@ class AgentSkillWriter:
             Absolute path of the written ``SKILL.md``.
         """
         path = self._main_path(agent_id, skill_name, app_id, project_id)
+        # Immutable history stays under .index so cascade never treats old versions as live Skills.
+        import hashlib
+        if await anyio.Path(path).exists():
+            previous = await anyio.Path(path).read_text()
+            version = hashlib.sha256(previous.encode()).hexdigest()
+            history = self._root.root / ".index" / "skill-history" / sanitize_dirname(app_id) / sanitize_dirname(project_id) / sanitize_dirname(agent_id) / sanitize_dirname(skill_name)
+            await anyio.Path(history).mkdir(parents=True, exist_ok=True)
+            await anyio.Path(history / f"{version}.md").write_text(previous)
         head_meta = frontmatter.model_dump(exclude_none=False)
         return await self._writer.write_markdown(
             path,

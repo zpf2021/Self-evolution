@@ -186,12 +186,14 @@ class EmbeddingSettings(BaseModel):
     model: str | None = None
     api_key: SecretStr | None = None
     base_url: str | None = None
+    index_dimension: int = Field(default=1024, ge=1, le=65536)
+    text_format: Literal["plain", "embeddinggemma"] = "plain"
+    fingerprint: str | None = None
     dimensions: int | None = None
     """API-level ``dimensions`` parameter for MRL-capable models.
     When set, passed to the embedding API so the server truncates
     with proper re-normalization. When ``None`` (default), the
-    parameter is omitted and client-side truncation to ``dim``
-    handles dimension alignment."""
+    parameter is omitted. The response must exactly match index_dimension."""
     timeout_seconds: float = Field(default=30.0, gt=0)
     max_retries: int = Field(default=3, ge=0)
     batch_size: int = Field(default=10, ge=1)

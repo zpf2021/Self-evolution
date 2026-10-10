@@ -96,6 +96,11 @@ async def _ensure_connection_locked() -> AsyncConnection:
         settings = load_settings()
         memory_root = MemoryRoot.resolve()
         memory_root.ensure()
+        # Check the embedding space before opening or creating any LanceDB table.
+        # A same-width index from another model must never be adopted silently.
+        from unified_memory.fingerprint import ensure_index_identity
+
+        ensure_index_identity(memory_root.root, settings.embedding)
         _conn = await open_lancedb_connection(memory_root.lancedb_dir, settings.lancedb)
         logger.info(
             "lancedb_connection_opened",

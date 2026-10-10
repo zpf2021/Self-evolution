@@ -717,7 +717,7 @@ class SearchManager:
     async def _embed_query(self, query: str) -> list[float]:
         if self._embedding is None:
             return []
-        vector = await self._embedding.embed(query)
+        vector = await self._embedding.embed_query(query)
         expected = getattr(self._embedding, "dim", None)
         if expected and len(vector) != expected:
             # Fail here, not inside LanceDB. A mismatched query vector reaches

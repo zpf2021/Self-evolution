@@ -14,7 +14,9 @@ from typing import ClassVar
 
 from everos.core.persistence.lancedb import BaseLanceTable, Vector
 
-_DIM = 1024
+from everos.config import load_settings
+
+_DIM = load_settings().embedding.index_dimension
 
 
 class AgentSkill(BaseLanceTable):

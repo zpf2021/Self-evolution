@@ -23,15 +23,18 @@ EmbeddingError = EmbeddingServiceError
 class EmbeddingProvider(Protocol):
     """Async embedding provider contract.
 
-    ``dim`` is the post-truncation vector dimension every embed call
-    returns. Providers that don't natively support dimension truncation
-    must truncate client-side so callers see the declared shape.
+    ``dim`` is the exact vector dimension every embed call returns.
+    Wrong-width responses are errors; never truncate or pad vectors.
     """
 
     dim: int
 
     async def embed(self, text: str) -> list[float]:
         """Embed a single string. Returns a ``[dim]`` vector."""
+        ...
+
+    async def embed_query(self, text: str) -> list[float]:
+        """Embed a retrieval query (distinct from a document)."""
         ...
 
     async def embed_batch(self, texts: Sequence[str]) -> list[list[float]]:

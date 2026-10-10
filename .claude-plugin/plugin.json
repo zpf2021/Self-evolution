@@ -1,11 +1,16 @@
 {
-  "name": "everos-memory",
-  "version": "0.1.0",
-  "description": "Automatic long-term memory for Claude Code, backed by a self-hosted EverOS server (recall on prompt submit, deferred capture on turn stop, batched extraction on flush).",
+  "name": "unified-memory",
+  "version": "0.2.0",
+  "description": "17 memory tools, short-term recovery and audit; EverOS is the sole long-term extraction and storage backend.",
   "author": {
     "name": "EverMind AI (EverOS)"
   },
-  "keywords": ["memory", "context", "recall", "everos"],
+  "keywords": [
+    "memory",
+    "context",
+    "recall",
+    "everos"
+  ],
   "userConfig": {
     "baseUrl": {
       "type": "string",
@@ -95,7 +100,7 @@
       "type": "number",
       "title": "Recall injection byte budget",
       "description": "Maximum UTF-8 bytes injected by recalled memory; complete items that do not fit are skipped",
-      "default": 9500
+      "default": 7000
     },
     "recallTimeoutMs": {
       "type": "number",

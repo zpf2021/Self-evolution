@@ -38,15 +38,12 @@ def session_id_of(session_id: str | None) -> str:
 
 
 def project_id_of(cwd: str | None, configured: str | None) -> str:
-    """Deliberately NOT derived from cwd — see module docstring.
+    """Project-isolated by default; sharing requires an explicit project override."""
+    if configured:
+        return safe_id(configured, "default")
+    canonical = os.path.realpath(cwd or os.getcwd())
+    return safe_id(os.path.basename(canonical), "project")[:90] + "-" + _short_hash(canonical)
 
-    Every working directory a user touches inside their one container maps to the SAME
-    project scope, so a skill learned in one repo generalizes to the next rather than being
-    siloed behind a per-directory project_id. Only an explicit userConfig override changes
-    this; cwd itself is intentionally ignored (kept as a parameter for API stability / in
-    case a future deployment wants per-project isolation back).
-    """
-    return safe_id(configured, "default")
 
 
 def agent_id_of(configured: str | None) -> str:
