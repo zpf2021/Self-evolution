@@ -9,6 +9,7 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT / "hooks" / "lib")]
 from unified_memory.store import ControlStore
 from unified_memory.catalog import validate_scope
 from identity import project_id_of
+from config import resolve_config
 
 
 def test_idempotent_queue_survives_reopen(tmp_path):
@@ -51,6 +52,14 @@ def test_scope_isolation_and_path_validation(tmp_path):
     assert project_id_of("/repo/a", "shared") == project_id_of("/repo/b", "shared")
     with pytest.raises(ValueError):
         validate_scope({"app_id": "../x"})
+
+
+def test_existing_portal_project_id_is_used_by_unified_plugin(monkeypatch):
+    monkeypatch.setenv("PORTAL_PROJECT_ID", "portal-project")
+    monkeypatch.delenv("CLAUDE_PLUGIN_OPTION_PROJECT_ID", raising=False)
+    assert resolve_config().project_id == "portal-project"
+    monkeypatch.setenv("CLAUDE_PLUGIN_OPTION_PROJECT_ID", "plugin-override")
+    assert resolve_config().project_id == "plugin-override"
 
 
 def test_audit_deduplication(tmp_path):

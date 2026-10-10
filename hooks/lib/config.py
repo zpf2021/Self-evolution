@@ -156,7 +156,9 @@ class ResolvedConfig:
 
 
 def resolve_config() -> ResolvedConfig:
-    project_id = _read_str("projectId", "") or None
+    # research-agent-serve already passes this to the CLI for the old
+    # memory-plugin. Keep the same host contract for Hooks and MCP.
+    project_id = _read_str("projectId", "") or os.environ.get("PORTAL_PROJECT_ID") or None
     user_id = _read_str("userId", "") or None
     synthesis_base_url = _read_str_with_env(
         "episodeSynthesisBaseUrl", "EVEROS_LLM__BASE_URL"
